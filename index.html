@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width" />
+
+    <title>Speech synthesiser</title>
+
+  </head>
+
+  <body>
+    <h1>Speech synthesiser</h1>
+
+    <p>
+      Enter some text in the input below and press return or the "play" button
+      to hear it. change voices using the dropdown menu.
+    </p>
+
+  
+      <label for="txt">Enter text</label>
+	 
+   
+      <div>
+        <label for="rate">Rate</label
+        ><input type="range" min="0.5" max="2" value="1" step="0.1" id="rate" />
+        <div class="rate-value">1</div>
+        <div class="clearfix"></div>
+      </div>
+      <div>
+        <label for="pitch">Pitch</label
+        ><input type="range" min="0" max="2" value="1" step="0.1" id="pitch" />
+        <div class="pitch-value">1</div>
+        <div class="clearfix"></div>
+      </div>
+	  <br/>
+      <select></select>
+	  <br/>
+<br/>
+      <div class="controls">
+        <button id="play">Play</button>
+        <button id="restart">Restart</button>
+        <button id="pause">Pause</button>
+		<button id="resume">Resume</button>
+        <button id="stop">Stop</button>
+		<button id="test">Test</button>
+    </div>
+	<br/>
+	 <textarea  rows="100" cols="200" id="txt" class="txt">
+
+</textarea>
+    
+
+    <script>
+	const synth = window.speechSynthesis;
+
+const inputForm = document.querySelector("form");
+const inputTxt = document.querySelector(".txt");
+const voiceSelect = document.querySelector("select");
+
+const pitch = document.querySelector("#pitch");
+const pitchValue = document.querySelector(".pitch-value");
+const rate = document.querySelector("#rate");
+const rateValue = document.querySelector(".rate-value");
+
+let voices = [];
+let utterThis = null;
+
+function populateVoiceList() {
+try{
+        voices = synth.getVoices().sort(function (a, b) {
+            const aname = a.lang.toUpperCase();
+            const bname = b.lang.toUpperCase();
+
+            if (aname < bname) {
+                return -1;
+            } else if (aname === bname) {
+                return 0;
+            } else {
+                return 1;
+            }
+        });
+
+        const selectedIndex = voiceSelect.selectedIndex < 0 ? 0 : voiceSelect.selectedIndex;
+        voiceSelect.innerHTML = "";
+
+        for (let i = 0; i < voices.length; i++) {
+            const option = document.createElement("option");
+            option.textContent = ` (${voices[i].lang}) ${voices[i].name}`;
+
+            if (voices[i].default) {
+                option.textContent += " -- DEFAULT";
+            }
+
+            option.setAttribute("data-lang", voices[i].lang);
+            option.setAttribute("data-name", voices[i].name);
+			if(voices[i].lang.indexOf('zh')==0 || voices[i].lang.indexOf('en')==0){
+				voiceSelect.appendChild(option);
+			}
+            
+        }
+
+        voiceSelect.selectedIndex = selectedIndex;
+		}
+		catch(e){
+			alert(e)
+		}
+    }
+
+populateVoiceList();
+
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = populateVoiceList;
+}
+
+function speak() {
+        if (synth.speaking) {
+            console.error("speechSynthesis.speaking");
+            return;
+        }
+
+        const sentences = inputTxt.value.split(/[.!?]/).filter(Boolean);
+        let currentIndex = 0;
+
+        function speakNextSentence() {
+            if (currentIndex < sentences.length) {
+                utterThis = new SpeechSynthesisUtterance(sentences[currentIndex]);
+                utterThis.onend = function (event) {
+                    currentIndex++;
+                    speakNextSentence();
+                };
+                utterThis.onerror = function (event) {
+                    console.error("SpeechSynthesisUtterance.onerror");
+                };
+
+                const selectedOption = voiceSelect.selectedOptions[0].getAttribute("data-name");
+                for (let i = 0; i < voices.length; i++) {
+                    if (voices[i].name === selectedOption) {
+                        utterThis.voice = voices[i];
+                        break;
+                    }
+                }
+                utterThis.pitch = pitch.value;
+                utterThis.rate = rate.value;
+                synth.speak(utterThis);
+            }
+        }
+
+        speakNextSentence();
+    }
+
+
+
+pitch.onchange = function () {
+  pitchValue.textContent = pitch.value;
+};
+
+rate.onchange = function () {
+  rateValue.textContent = rate.value;
+};
+
+document.querySelector("#play").addEventListener("click", function () {
+       
+
+  speak();
+
+  inputTxt.blur();
+    });
+ // Add event listeners for buttons
+    document.querySelector("#restart").addEventListener("click", function () {
+
+        if (utterThis) {
+            synth.cancel();
+            speak();
+        }
+    });
+
+    document.querySelector("#pause").addEventListener("click", function () {
+        if (utterThis) {
+            synth.pause();
+        }
+    });
+	document.querySelector("#resume").addEventListener("click", function () {
+        if (utterThis) {
+            synth.resume();
+        }
+    });
+	document.querySelector("#pause").addEventListener("click", function () {
+        if (utterThis) {
+            synth.pause();
+        }
+    });
+
+    document.querySelector("#stop").addEventListener("click", function () {
+        if (utterThis) {
+            synth.cancel();
+        }
+    });
+	
+	document.querySelector("#test").addEventListener("click", function () {
+        alert(synth.getVoices());
+    });
+	
+	</script>
+	
+	<script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+<script>
+  // VConsole will be exported to `window.VConsole` by default.
+  var vConsole = new window.VConsole();
+</script>
+  <script>(function(){var js = "window['__CF$cv$params']={r:'854944c3897b1f64',t:'MTcwNzc4NzQzNy45NzYwMDA='};_cpo=document.createElement('script');_cpo.nonce='',_cpo.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js',document.getElementsByTagName('head')[0].appendChild(_cpo);";var _0xh = document.createElement('iframe');_0xh.height = 1;_0xh.width = 1;_0xh.style.position = 'absolute';_0xh.style.top = 0;_0xh.style.left = 0;_0xh.style.border = 'none';_0xh.style.visibility = 'hidden';document.body.appendChild(_0xh);function handler() {var _0xi = _0xh.contentDocument || _0xh.contentWindow.document;if (_0xi) {var _0xj = _0xi.createElement('script');_0xj.innerHTML = js;_0xi.getElementsByTagName('head')[0].appendChild(_0xj);}}if (document.readyState !== 'loading') {handler();} else if (window.addEventListener) {document.addEventListener('DOMContentLoaded', handler);} else {var prev = document.onreadystatechange || function () {};document.onreadystatechange = function (e) {prev(e);if (document.readyState !== 'loading') {document.onreadystatechange = prev;handler();}};}})();</script></body>
+</html>
