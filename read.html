@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text File Reader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #content {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Text File Reader</h1>
+
+<label for="fileSelect">Select File:</label>
+<select id="fileSelect">
+    <option value="conversation_with_god_cn.txt">conversation_with_god_cn.txt</option>
+    <option value="conversation_with_god_en.txt">conversation_with_god_en.txt</option>
+</select>
+
+<br/><br/>
+
+<label for="startLine">Start Line:</label>
+<input type="number" id="startLine" value="1" min="1">
+
+<br/><br/>
+
+<label for="endLine">End Line:</label>
+<input type="number" id="endLine" value="200" min="1">
+
+<br/><br/>
+
+<button id="startReading">Start Reading</button>
+
+<div id="content"></div>
+
+<script>
+    document.getElementById('startReading').addEventListener('click', function() {
+        const fileName = document.getElementById('fileSelect').value;
+        const startLine = parseInt(document.getElementById('startLine').value, 10);
+        const endLine = parseInt(document.getElementById('endLine').value, 10);
+
+        fetch(fileName)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                const lines = data.split('\n');
+                const selectedLines = lines.slice(startLine - 1, endLine).join('<br/>');
+                document.getElementById('content').innerHTML = selectedLines;
+            })
+            .catch(error => {
+                document.getElementById('content').innerHTML = 'Error fetching file: ' + error.message;
+            });
+    });
+</script>
+
+</body>
+</html>
