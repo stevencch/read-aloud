@@ -15,13 +15,17 @@
             padding: 10px;
             white-space: pre-wrap;
         }
+        #loading {
+            display: none;
+            margin-top: 20px;
+            font-weight: bold;
+            color: blue;
+        }
     </style>
 </head>
 <body>
 
-<h1>Text File Reader</h1>
 
-<label for="fileSelect">Select File:</label>
 <select id="fileSelect">
     <option value="conversation_with_god_cn.txt">conversation_with_god_cn.txt</option>
     <option value="conversation_with_god_en.txt">conversation_with_god_en.txt</option>
@@ -29,25 +33,42 @@
 
 <br/><br/>
 
-<label for="startLine">Start Line:</label>
-<input type="number" id="startLine" value="1" min="1">
+
+<input type="number" id="startLine" min="1">
+    <br/><br/>
+<input type="number" id="endLine" min="1">
 
 <br/><br/>
 
-<label for="endLine">End Line:</label>
-<input type="number" id="endLine" value="200" min="1">
-
-<br/><br/>
-
-<button id="startReading">Start Reading</button>
-
+<button id="startReading">Start</button>
+<div id="loading">Loading...</div>
 <div id="content"></div>
 
 <script>
+    // Load start and end values from local storage or set defaults
+    document.addEventListener('DOMContentLoaded', function() {
+        const startLineInput = document.getElementById('startLine');
+        const endLineInput = document.getElementById('endLine');
+        
+        const savedStartLine = localStorage.getItem('startLine');
+        const savedEndLine = localStorage.getItem('endLine');
+        
+        startLineInput.value = savedStartLine ? savedStartLine : 1;
+        endLineInput.value = savedEndLine ? savedEndLine : 200;
+    });
+
     document.getElementById('startReading').addEventListener('click', function() {
         const fileName = document.getElementById('fileSelect').value;
-        const startLine = parseInt(document.getElementById('startLine').value, 10);
-        const endLine = parseInt(document.getElementById('endLine').value, 10);
+        const startLineInput = document.getElementById('startLine');
+        const endLineInput = document.getElementById('endLine');
+
+        const startLine = parseInt(startLineInput.value, 10);
+        const endLine = parseInt(endLineInput.value, 10);
+
+        // Show loading message
+        const loadingMessage = document.getElementById('loading');
+        loadingMessage.style.display = 'block';
+        document.getElementById('content').innerHTML = ''; // Clear previous content
 
         fetch(fileName)
             .then(response => {
@@ -60,9 +81,23 @@
                 const lines = data.split('\n');
                 const selectedLines = lines.slice(startLine - 1, endLine).join('<br/>');
                 document.getElementById('content').innerHTML = selectedLines;
+
+                // Update start and end line inputs
+                const newStartLine = startLine + 200;
+                const newEndLine = endLine + 200;
+                startLineInput.value = newStartLine;
+                endLineInput.value = newEndLine;
+
+                // Save new values to local storage
+                localStorage.setItem('startLine', newStartLine);
+                localStorage.setItem('endLine', newEndLine);
+
+                // Hide loading message
+                loadingMessage.style.display = 'none';
             })
             .catch(error => {
                 document.getElementById('content').innerHTML = 'Error fetching file: ' + error.message;
+                loadingMessage.style.display = 'none'; // Hide loading message in case of error
             });
     });
 </script>
