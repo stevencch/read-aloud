@@ -1,1 +1,20 @@
-<textarea></textarea>
+
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textarea to Body</title>
+</head>
+<body>
+    <textarea id="textInput" rows="5" cols="40" placeholder="Enter text here..."></textarea>
+    <button onclick="addToBody()">Add</button><script>
+    function addToBody() {
+        let text = document.getElementById("textInput").value;
+        let newParagraph = document.createElement("p");
+        newParagraph.textContent = text;
+        document.body.appendChild(newParagraph);
+    }
+</script>
+
+</body>
+</html>
