@@ -1,5 +1,5 @@
-
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,14 +7,20 @@
 </head>
 <body>
     <textarea id="textInput" rows="5" cols="40" placeholder="Enter text here..."></textarea>
-    <button onclick="addToBody()">Add</button><script>
-    function addToBody() {
-        let text = document.getElementById("textInput").value;
-        let newParagraph = document.createElement("p");
-        newParagraph.textContent = text;
-        document.body.appendChild(newParagraph);
-    }
-</script>
-
+    <div id="content"></div>
+    <script>
+    document.getElementById("textInput").addEventListener("paste", function(event) {
+        setTimeout(function() {
+            let textInput = document.getElementById("textInput");
+            let text = textInput.value;
+            textInput.value = '';
+            let contentDiv = document.getElementById("content");
+            contentDiv.innerHTML = ''; // Clear the div
+            let newParagraph = document.createElement("p");
+            newParagraph.textContent = text;
+            contentDiv.appendChild(newParagraph);
+        }, 0);
+    });
+    </script>
 </body>
 </html>
